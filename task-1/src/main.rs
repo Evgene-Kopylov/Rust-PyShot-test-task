@@ -68,12 +68,20 @@ fn get_score(game_stamps: &[Stamp], offset: i32) -> (i32, i32) {
     (home_score, away_score)
 }
 
+/// Игра происходит между двумя командами, "Хозяева" и "Гости".
+/// Имеет TIMESTAMP_COUNT моментов времени, в каждый из которых 
+/// счет может измениться с вероятностью PROBABILITY_SCORE_CHANGED.
+/// PROBABILITY_HOME_SCORE - вероятность успеха "Хозяев",
+/// иначе очко достается "Гостям", таким образом, только одна команда 
+/// может получить очко в один момент игры.
 fn main() {
+    
+
     let game_stamps = generate_game();
-    let offset = 1_000_000; // Замените на желаемый момент времени
+    let offset = 40000; // Замените на желаемый момент времени
 
     // Получение и вывод счета на указанный момент времени
     let (home_score, away_score) = get_score(&game_stamps, offset);
 
-    println!("Счет на момент времени {}: Дома {} - В гостях {}", offset, home_score, away_score);
+    println!("Счет на момент времени {}: 'Хозяева' {} - 'Гости' {}", offset, home_score, away_score);
 }
