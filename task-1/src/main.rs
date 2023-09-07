@@ -1,22 +1,8 @@
 use rand::Rng;
 
-
-fn main() {
-    let game_stamps = generate_game();
-    let offset = 1_000_000; // Замените на желаемый момент времени
-
-    let (home_score, away_score) = get_score(&game_stamps, offset);
-
-    println!("Счет на момент времени {}: Дома {} - В гостях {}", offset, home_score, away_score);
-}
-
-
 const TIMESTAMPS_COUNT: usize = 50000;
-
 const PROBABILITY_SCORE_CHANGED: f64 = 0.0001;
-
 const PROBABILITY_HOME_SCORE: f64 = 0.45;
-
 const OFFSET_MAX_STEP: i32 = 3;
 
 const INITIAL_STAMP: Stamp = Stamp {
@@ -37,10 +23,12 @@ struct Stamp {
 }
 
 fn generate_stamp(previous_value: Stamp) -> Stamp {
+    // Генерация новой фиксации состояния счета
     let score_changed: bool = rand::thread_rng().gen_bool(PROBABILITY_SCORE_CHANGED);
     let home_score_change: bool = rand::thread_rng().gen_bool(PROBABILITY_HOME_SCORE);
     let offset_change: i32 = rand::thread_rng().gen_range(1..=OFFSET_MAX_STEP);
 
+    // Обновление счета на основе случайных изменений
     Stamp {
         offset: previous_value.offset + offset_change,
         score: Score {
@@ -51,6 +39,7 @@ fn generate_stamp(previous_value: Stamp) -> Stamp {
 }
 
 fn generate_game() -> Vec<Stamp> {
+    // Генерация игры с фиксациями состояния счета
     let mut stamps = vec![INITIAL_STAMP];
     let mut current_stamp = INITIAL_STAMP;
 
@@ -62,8 +51,8 @@ fn generate_game() -> Vec<Stamp> {
     stamps
 }
 
-
 fn get_score(game_stamps: &[Stamp], offset: i32) -> (i32, i32) {
+    // Вычисление счета на момент времени offset
     let mut home_score = 0;
     let mut away_score = 0;
 
@@ -72,9 +61,19 @@ fn get_score(game_stamps: &[Stamp], offset: i32) -> (i32, i32) {
             home_score = stamp.score.home;
             away_score = stamp.score.away;
         } else {
-            break;
+            break; // Достигнут момент времени offset, выходим из цикла
         }
     }
 
     (home_score, away_score)
+}
+
+fn main() {
+    let game_stamps = generate_game();
+    let offset = 1_000_000; // Замените на желаемый момент времени
+
+    // Получение и вывод счета на указанный момент времени
+    let (home_score, away_score) = get_score(&game_stamps, offset);
+
+    println!("Счет на момент времени {}: Дома {} - В гостях {}", offset, home_score, away_score);
 }
