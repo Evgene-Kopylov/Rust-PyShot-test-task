@@ -85,3 +85,50 @@ fn main() {
 
     println!("Счет на момент времени {}: 'Хозяева' {} - 'Гости' {}", offset, home_score, away_score);
 }
+
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_score_initial_offset() {
+        // Проверка начального счета на момент времени 0
+        let game_stamps = generate_game();
+        let (home_score, away_score) = get_score(&game_stamps, 0);
+        assert_eq!(home_score, 0);
+        assert_eq!(away_score, 0);
+    }
+
+    #[test]
+    fn test_get_score_exact_offset() {
+        // Проверка счета на момент времени равном offset
+        let game_stamps = generate_game();
+        let offset = 1000;
+        let (home_score, away_score) = get_score(&game_stamps, offset);
+        assert!(home_score >= 0);
+        assert!(away_score >= 0);
+    }
+
+    #[test]
+    fn test_get_score_offset_greater_than_max() {
+        // Проверка счета на момент времени большем, чем максимальный момент в игре
+        let game_stamps = generate_game();
+        let offset = TIMESTAMPS_COUNT as i32 + 100; // Больше, чем максимальный момент
+        let (home_score, away_score) = get_score(&game_stamps, offset);
+        assert!(home_score >= 0);
+        assert!(away_score >= 0);
+    }
+
+    #[test]
+    fn test_get_score_offset_less_than_min() {
+        // Проверка счета на момент времени меньшем, чем минимальный момент в игре
+        let game_stamps = generate_game();
+        let offset = -100; // Меньше, чем минимальный момент
+        let (home_score, away_score) = get_score(&game_stamps, offset);
+        assert_eq!(home_score, 0);
+        assert_eq!(away_score, 0);
+    }
+}
