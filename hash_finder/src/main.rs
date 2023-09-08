@@ -9,6 +9,8 @@ use sha2::{Sha256, Digest};
 use hex::encode;
 use std::thread;
 
+const ITERATIONS_LIMIT: u64 = 5_000_000;
+
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -43,17 +45,30 @@ fn main() {
     let mut handles = vec![];
 
     // Находим количество доступных ядер CPU
-    let num_threads = num_cpus::get();
-    
-    for i in 0..num_threads {
+    let num_threads = if num_cpus::get() > args.lines {
+        args.lines
+    } else {
+        num_cpus::get()
+    };
+
+    let num_values_per_thread = args.lines / num_threads + 1;
+    dbg!(args.lines);
+    dbg!(num_threads);
+    dbg!(num_values_per_thread);
+    for i in 0..num_threads {        
         let results = Arc::clone(&results);
         let handle = thread::spawn(move || {
+            let mut count = 0;
+
             let mut val = results.lock().unwrap();            
-            for j in (0..10_000_000).step_by(num_threads) {
-                let hash_string = calculate_sha256_hash((j + i) as u64);
+            for j in (0..ITERATIONS_LIMIT).step_by(num_threads) {
+                let hash_string = calculate_sha256_hash(j + i as u64);
                 if ends_with_zeros(&hash_string, args.zeros) {
                     let line = format!("{} {}", j.to_string().yellow(), hash_string.green());
                     val.push(line);
+                    count += 1;
+                }
+                if count >= num_values_per_thread {
                     break;
                 }
             }            
@@ -66,10 +81,12 @@ fn main() {
         handle.join().unwrap();
     }
 
-    let res = results.lock().unwrap();
-    for line in res.iter() {
-        println!("{}", line);
+    let result = results.lock().unwrap();
+
+    for i in 0..args.lines {
+        println!("{}) {}", i+1, result[i]);
     }
+
 }
 
 #[cfg(test)]
