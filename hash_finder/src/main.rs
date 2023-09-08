@@ -1,9 +1,8 @@
-use colored::Colorize;
 use clap::Parser;
-use sha2::{Sha256, Digest};
+use colored::Colorize;
 use hex::encode;
+use sha2::{Digest, Sha256};
 use std::sync::{Arc, Mutex};
-use num_cpus;
 use std::thread;
 
 const ITERATIONS_LIMIT: u64 = 5_000_000;
@@ -33,7 +32,7 @@ fn ends_with_zeros(hash_string: &str, n: usize) -> bool {
     hash_string.ends_with(&"0".repeat(n))
 }
 
-fn main() { 
+fn main() {
     let args = Args::parse();
     println!("zeros = {}, lines = {}", args.zeros, args.lines);
 
@@ -50,11 +49,11 @@ fn main() {
     // Сколько значений должна получить каждый поток.
     let num_values_per_thread = args.lines / num_threads + 1;
 
-    for i in 0..num_threads {        
+    for i in 0..num_threads {
         let results = Arc::clone(&results);
         let handle = thread::spawn(move || {
             let mut count = 0;
-            let mut val = results.lock().unwrap();            
+            let mut val = results.lock().unwrap();
             for j in (0..ITERATIONS_LIMIT).step_by(num_threads) {
                 let hash_string = calculate_sha256_hash(j + i as u64);
                 if ends_with_zeros(&hash_string, args.zeros) {
@@ -81,7 +80,6 @@ fn main() {
         println!("{}) {}", i + 1, line);
     }
 }
-
 
 #[cfg(test)]
 mod tests {
