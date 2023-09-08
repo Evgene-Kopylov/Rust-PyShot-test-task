@@ -1,5 +1,3 @@
-#[allow(unused_imports)]  // FIXME
-
 use colored::Colorize;
 
 use clap::Parser;
@@ -52,9 +50,7 @@ fn main() {
     };
 
     let num_values_per_thread = args.lines / num_threads + 1;
-    dbg!(args.lines);
-    dbg!(num_threads);
-    dbg!(num_values_per_thread);
+
     for i in 0..num_threads {        
         let results = Arc::clone(&results);
         let handle = thread::spawn(move || {
@@ -64,7 +60,7 @@ fn main() {
             for j in (0..ITERATIONS_LIMIT).step_by(num_threads) {
                 let hash_string = calculate_sha256_hash(j + i as u64);
                 if ends_with_zeros(&hash_string, args.zeros) {
-                    let line = format!("{} {}", j.to_string().yellow(), hash_string.green());
+                    let line = format!("{} '{}'", j.to_string().yellow(), hash_string.green());
                     val.push(line);
                     count += 1;
                 }
