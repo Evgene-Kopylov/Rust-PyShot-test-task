@@ -1,10 +1,9 @@
 use colored::Colorize;
-
 use clap::Parser;
-use std::sync::{Arc, Mutex};
-use num_cpus;
 use sha2::{Sha256, Digest};
 use hex::encode;
+use std::sync::{Arc, Mutex};
+use num_cpus;
 use std::thread;
 
 const ITERATIONS_LIMIT: u64 = 5_000_000;
@@ -38,8 +37,7 @@ fn main() {
     let args = Args::parse();
     println!("zeros = {}, lines = {}", args.zeros, args.lines);
 
-    let t = vec![];
-    let results = Arc::new(Mutex::new(t));
+    let results = Arc::new(Mutex::new(Vec::new()));
     let mut handles = vec![];
 
     // Находим количество доступных ядер CPU
@@ -55,13 +53,12 @@ fn main() {
         let results = Arc::clone(&results);
         let handle = thread::spawn(move || {
             let mut count = 0;
-
             let mut val = results.lock().unwrap();            
             for j in (0..ITERATIONS_LIMIT).step_by(num_threads) {
                 let hash_string = calculate_sha256_hash(j + i as u64);
                 if ends_with_zeros(&hash_string, args.zeros) {
                     let line = format!("{} '{}'", j.to_string().yellow(), hash_string.green());
-                    val.push(line);
+                    val.push((j, line));
                     count += 1;
                 }
                 if count >= num_values_per_thread {
@@ -70,20 +67,20 @@ fn main() {
             }            
         });
         handles.push(handle);
-
     }
 
     for handle in handles {
         handle.join().unwrap();
     }
 
-    let result = results.lock().unwrap();
+    let mut result = results.lock().unwrap();
+    result.sort_by_key(|item| item.0);
 
-    for i in 0..args.lines {
-        println!("{}) {}", i+1, result[i]);
+    for (i, (_, line)) in result.iter().enumerate().take(args.lines) {
+        println!("{}) {}", i + 1, line);
     }
-
 }
+
 
 #[cfg(test)]
 mod tests {
