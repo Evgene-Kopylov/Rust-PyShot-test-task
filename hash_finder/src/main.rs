@@ -47,6 +47,7 @@ fn main() {
         num_cpus::get()
     };
 
+    // Сколько значений должна получить каждый поток.
     let num_values_per_thread = args.lines / num_threads + 1;
 
     for i in 0..num_threads {        
@@ -64,7 +65,7 @@ fn main() {
                 if count >= num_values_per_thread {
                     break;
                 }
-            }            
+            }
         });
         handles.push(handle);
     }
