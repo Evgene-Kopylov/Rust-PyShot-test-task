@@ -32,6 +32,7 @@ fn ends_with_zeros(hash_string: &str, n: usize) -> bool {
     hash_string.ends_with(&"0".repeat(n))
 }
 
+/// Пример консольной команды смотри в `hash_finder/README.md`
 fn main() {
     let args = Args::parse();
     println!("zeros = {}, lines = {}", args.zeros, args.lines);
