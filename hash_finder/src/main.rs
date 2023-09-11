@@ -12,11 +12,11 @@ const ITERATIONS_LIMIT: u64 = 5_000_000;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// число нулей в конце хеша
-    #[arg(short, long)]
+    #[arg(short = 'N', long)]
     zeros: usize,
 
     /// число значений хеша
-    #[arg(short, long, default_value_t = 1)]
+    #[arg(short = 'F', long, default_value_t = 1)]
     lines: usize,
 }
 
