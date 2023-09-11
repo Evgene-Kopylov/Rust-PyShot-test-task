@@ -1,2 +1,3 @@
 # PyShot test task
- Тестовые задания на практику по Rust в PyShop.
+ Тестовые [задания](./TASK.md) на практику по Rust в PyShop.
+
